@@ -1,0 +1,32 @@
+:root {
+  --text: #1d1a16;
+  --muted: #5d5a56;
+  --border: #d9d1c7;
+  --accent: #0e7490;
+  --user-bg: #0e7490;
+  --assistant-bg: #fff8ee;
+  --page-a: #f5d28f;
+  --page-b: #f2efe8;
+  --sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font: 16px/1.45 var(--sans);
+  color: var(--text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 5%, var(--page-a), transparent 45%),
+    linear-gradient(160deg, var(--page-b), #f7f4ee);
+}
+
+#root {
+  min-height: 100vh;
+}

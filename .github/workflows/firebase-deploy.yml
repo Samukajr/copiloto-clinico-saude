@@ -1,0 +1,49 @@
+name: Firebase Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install functions dependencies
+        run: npm ci --prefix functions
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Prepare functions env
+        run: |
+          cat <<EOF > functions/.env
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
+          OPENAI_TIMEOUT_MS=${{ vars.OPENAI_TIMEOUT_MS || '30000' }}
+          MAX_INPUT_CHARS=${{ vars.MAX_INPUT_CHARS || '4000' }}
+          MAX_MESSAGES=${{ vars.MAX_MESSAGES || '20' }}
+          RATE_LIMIT_WINDOW_MS=${{ vars.RATE_LIMIT_WINDOW_MS || '60000' }}
+          RATE_LIMIT_MAX_REQUESTS=${{ vars.RATE_LIMIT_MAX_REQUESTS || '20' }}
+          DEMO_MODE=${{ vars.DEMO_MODE || 'false' }}
+          EOF
+
+      - name: Deploy to Firebase
+        run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions --token "$FIREBASE_TOKEN" --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}

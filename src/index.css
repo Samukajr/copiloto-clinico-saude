@@ -1,14 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
 :root {
-  --text: #1d1a16;
-  --muted: #5d5a56;
-  --border: #d9d1c7;
-  --accent: #0e7490;
-  --user-bg: #0e7490;
-  --assistant-bg: #fff8ee;
-  --page-a: #f5d28f;
-  --page-b: #f2efe8;
-  --sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font: 16px/1.45 var(--sans);
+  --text: #0c172d;
+  --muted: #4d5e7d;
+  --border: rgba(147, 172, 214, 0.38);
+  --accent: #1075ff;
+  --accent-strong: #0a56c2;
+  --user-bg: linear-gradient(135deg, #0b66ef 0%, #17a0ff 100%);
+  --assistant-bg: linear-gradient(170deg, #f6fbff 0%, #edf4ff 100%);
+  --page-a: #89d2ff;
+  --page-b: #ebf2ff;
+  --card-bg: rgba(252, 255, 255, 0.82);
+  --card-shadow: 0 22px 44px rgba(9, 36, 86, 0.12);
+  --focus-ring: 0 0 0 3px rgba(16, 117, 255, 0.2);
+  --display: 'Sora', 'Segoe UI', sans-serif;
+  --sans: 'Source Sans 3', 'Segoe UI', sans-serif;
+  font: 17px/1.5 var(--sans);
   color: var(--text);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -23,8 +30,36 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 20% 5%, var(--page-a), transparent 45%),
-    linear-gradient(160deg, var(--page-b), #f7f4ee);
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--page-a) 70%, white), transparent 34%),
+    radial-gradient(circle at 92% 18%, rgba(24, 149, 255, 0.18), transparent 30%),
+    linear-gradient(150deg, #f6f9ff 0%, var(--page-b) 42%, #f4f9ff 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  width: 44vw;
+  height: 44vw;
+  border-radius: 50%;
+  z-index: -1;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+body::before {
+  right: -12vw;
+  top: -16vw;
+  background: radial-gradient(circle, rgba(16, 117, 255, 0.34) 0%, rgba(16, 117, 255, 0) 70%);
+}
+
+body::after {
+  left: -20vw;
+  bottom: -22vw;
+  background: radial-gradient(circle, rgba(28, 202, 182, 0.2) 0%, rgba(28, 202, 182, 0) 70%);
 }
 
 #root {

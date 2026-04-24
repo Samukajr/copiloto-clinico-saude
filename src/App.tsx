@@ -11,17 +11,16 @@ type CareTrack = 'reabilitacao' | 'transicao' | 'paliativos'
 type Audience = 'equipe' | 'cuidador'
 
 const STORAGE_KEY = 'chatgpt-local-history-v1'
-const STATIC_DEMO_MODE = import.meta.env.VITE_STATIC_DEMO === 'true'
+const RAW_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim()
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '')
 
-const EMERGENCY_TERMS = [
-  'dor no peito',
-  'falta de ar intensa',
-  'convulsao',
-  'hemorragia',
-  'sangramento ativo',
-  'perda de consciencia',
-  'ideacao suicida',
-]
+function buildApiUrl(path: string) {
+  if (!API_BASE_URL) {
+    return path
+  }
+
+  return `${API_BASE_URL}${path}`
+}
 
 const QUICK_PROMPTS = {
   reabilitacao: [
@@ -107,27 +106,7 @@ function App() {
     setIsLoading(true)
 
     try {
-      const lowerUserText = userText.toLowerCase()
-      const emergencyDetected = EMERGENCY_TERMS.some((term) => lowerUserText.includes(term))
-
-      if (STATIC_DEMO_MODE || emergencyDetected) {
-        const demoReply = emergencyDetected
-          ? 'Alerta de risco agudo identificado. Acione avaliacao medica imediata e o servico de emergencia local (SAMU 192 no Brasil), conforme protocolo institucional.'
-          : [
-              `Resumo do caso: ${patientContext || 'Contexto clinico nao informado.'}`,
-              `Plano sugerido (${careTrack}):`,
-              '1. Defina objetivos clinicos das proximas 24-72h.',
-              '2. Revise sinais de alerta e plano de escalonamento.',
-              '3. Registre checklist da proxima visita/planto.',
-              `Linguagem direcionada para: ${audience}.`,
-              'Modo gratuito ativo: esta resposta e um prototipo local sem chamada ao provedor externo.',
-            ].join('\n')
-
-        setMessages((current) => [...current, { role: 'assistant', content: demoReply }])
-        return
-      }
-
-      const response = await fetch('/api/chat', {
+      const response = await fetch(buildApiUrl('/api/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,18 +134,15 @@ function App() {
       const data = (await response.json()) as { reply: string }
       setMessages((current) => [...current, { role: 'assistant', content: data.reply }])
     } catch (submitError) {
-      const fallbackReply = [
-        'Nao foi possivel acessar a API remota. Entrando em modo gratuito local.',
-        `Resumo do caso: ${patientContext || 'Contexto clinico nao informado.'}`,
-        `Plano inicial (${careTrack}) em 3 passos:`,
-        '1. Revisar objetivos terapeuticos e status funcional.',
-        '2. Verificar sinais de risco e criterio de escalonamento.',
-        '3. Definir plano para 24h/72h e checklist de continuidade.',
-      ].join('\n')
-
-      setMessages((current) => [...current, { role: 'assistant', content: fallbackReply }])
       const message = submitError instanceof Error ? submitError.message : 'Erro inesperado.'
-      setError(`API indisponivel. Resposta local ativada. Detalhe tecnico: ${message}`)
+      setError(`Falha ao consultar API OpenAI. Detalhe tecnico: ${message}`)
+      setMessages((current) => [
+        ...current,
+        {
+          role: 'assistant',
+          content: 'Nao foi possivel gerar resposta agora. Verifique se a API esta publicada e com OPENAI_API_KEY configurada.',
+        },
+      ])
     } finally {
       setIsLoading(false)
     }
@@ -196,7 +172,6 @@ function App() {
         <div>
           <h1>Copiloto Clinico</h1>
           <p>Reabilitacao, transicao de cuidados e cuidados paliativos.</p>
-          {STATIC_DEMO_MODE && <span className="mode-pill">Modo gratuito estatico ativo</span>}
         </div>
         <button type="button" className="ghost" onClick={clearConversation} disabled={isLoading || messages.length === 0}>
           Limpar conversa

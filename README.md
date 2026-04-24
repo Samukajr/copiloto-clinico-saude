@@ -66,7 +66,7 @@ npm run dev
 
 - Persistir historico de conversa com banco (ex.: PostgreSQL + Prisma).
 
-## Modo 100% Gratuito (Recomendado Agora)
+## Modo 100% Gratuito (Opcional)
 
 Para manter custo zero, use:
 
@@ -74,6 +74,14 @@ Para manter custo zero, use:
 - `VITE_STATIC_DEMO=true` para respostas locais sem backend pago
 
 Nesse modo, o app continua util para demonstracao de fluxos clinicos, UX e protocolos, mas nao chama OpenAI em producao.
+
+## Modo OpenAI Real (Producao)
+
+Para o frontend publicado no GitHub Pages chamar a API real, configure uma API backend externa (ex.: Firebase Functions) e defina a variavel de repositório:
+
+- `VITE_API_BASE_URL`: URL base da API publicada, por exemplo `https://us-central1-SEU_PROJETO.cloudfunctions.net`
+
+Com isso, o frontend publicado usara `${VITE_API_BASE_URL}/api/chat`.
 
 Workflow pronto:
 
@@ -83,7 +91,8 @@ Como usar:
 
 1. Publique o repositório no GitHub e use a branch `main`.
 2. Em `Settings > Pages`, selecione `GitHub Actions`.
-3. Faça push na `main` para publicar automaticamente.
+3. Em `Settings > Secrets and variables > Actions > Variables`, crie `VITE_API_BASE_URL`.
+4. Faça push na `main` para publicar automaticamente.
 
 Build local no modo gratuito:
 
